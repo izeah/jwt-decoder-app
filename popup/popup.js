@@ -2,6 +2,9 @@ let countdownInterval;
 let globalCache = [];
 let currentSearchTerm = '';
 
+// Domain, token and payload come from arbitrary sites: escape before putting them in innerHTML.
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
 function formatTime(timestamp) {
   if (!timestamp) return 'N/A';
   const date = new Date(timestamp * 1000);
@@ -59,7 +62,7 @@ function renderJwts(cache) {
 
   if (!filtered || filtered.length === 0) {
     list.innerHTML = currentSearchTerm
-      ? `<div class="empty-state">No matching JWTs found for "${currentSearchTerm}"</div>`
+      ? `<div class="empty-state">No matching JWTs found for "${esc(currentSearchTerm)}"</div>`
       : `<div class="empty-state">No JWTs captured yet.<br><small>Browse sites normally. Tokens sent in headers will appear here.</small></div>`;
     return;
   }
@@ -78,18 +81,18 @@ function renderJwts(cache) {
 
     card.innerHTML = `
       <div class="domain-row">
-        <span class="domain">${item.domain}</span>
+        <span class="domain">${esc(item.domain)}</span>
         <div class="token-container">
-          <span class="short-token">${item.shortToken}</span>
-          <button class="btn-copy" data-token="${item.token}">Copy</button>
+          <span class="short-token">${esc(item.shortToken)}</span>
+          <button class="btn-copy" data-token="${esc(item.token)}">Copy</button>
         </div>
       </div>
       <div class="info-row">
-        <span>Issued: ${formatTime(item.iat)}</span>
-        <span class="${countdownClass}" data-exp="${item.exp}">${countdownText}</span>
+        <span>Issued: ${esc(formatTime(item.iat))}</span>
+        <span class="${countdownClass}" data-exp="${esc(item.exp)}">${esc(countdownText)}</span>
       </div>
       <button class="btn-view" data-index="${i}">View Payload</button>
-      <pre class="payload" id="payload-${i}">${JSON.stringify(item.fullPayload, null, 2)}</pre>
+      <pre class="payload" id="payload-${i}">${esc(JSON.stringify(item.fullPayload, null, 2))}</pre>
     `;
 
     list.appendChild(card);
